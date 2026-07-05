@@ -57,17 +57,32 @@ def generate_summary(config: AppConfig, pages_per_forum: int = 1, use_llm: bool 
 
 def build_llm_prompt(config: AppConfig, source_digest: str) -> str:
     now = datetime.now(ZoneInfo(config.summary.timezone))
+    forum_sections = "\n".join(
+        f"## {index}. {forum.name}\n\n### 热点总结\n\n### 近日趋势"
+        for index, forum in enumerate(config.nga.target_forums, start=1)
+    )
     return f"""请根据下面抓取到的 NGA 帖子列表与部分帖子内容，生成一份中文 Markdown 摘要。
 
 当前时间：{now.strftime('%Y-%m-%d %H:%M:%S %Z')}
 
 要求：
 - 直接输出 Markdown 正文，不要寒暄、不要说明“好的”。
-- 总结今日或最近的论坛热点，按重要性排序。
-- 给出近几日讨论动向；如果抓取内容不足以判断，请明确写出样本限制。
+- 必须严格按照配置中的板块分别总结，不要把不同板块合并成全站总榜。
+- 每个板块都要包含两个小节：`热点总结` 和 `近日趋势`。
+- `热点总结` 按该板块内的重要性排序，列出今日或最近热点。
+- `近日趋势` 只分析该板块自己的讨论动向；如果样本不足以判断，请明确写出样本限制。
 - 每个热点尽量附带相关帖子链接。
 - 提炼主要争议点、核心论点和情绪走向。
+- 如果某个板块抓取内容很少，也必须保留该板块标题，并说明无法充分判断。
 - 不要泄露 cookie、API key 或任何配置内容。
+
+输出结构必须使用以下板块顺序和标题：
+
+# NGA 论坛分板块热点摘要
+
+报告时间：{now.strftime('%Y-%m-%d %H:%M:%S %Z')}
+
+{forum_sections}
 
 抓取内容：
 
@@ -83,7 +98,7 @@ def build_source_digest(
 ) -> str:
     lines: list[str] = ["# NGA 抓取样本", ""]
     for forum_name, threads in threads_by_forum.items():
-        lines.extend([f"## {forum_name} 帖子列表", ""])
+        lines.extend([f"## 板块：{forum_name}", "", "### 帖子列表", ""])
         for item in threads:
             reply = f"，回复数约 {item.reply_count}" if item.reply_count else ""
             lines.append(f"- [{item.title}]({item.url}){reply}")
@@ -94,7 +109,7 @@ def build_source_digest(
         grouped[content.item.forum_name].append(content)
 
     for forum_name, forum_contents in grouped.items():
-        lines.extend([f"## {forum_name} 高回复帖内容摘录", ""])
+        lines.extend([f"## 板块：{forum_name} 正文摘录", ""])
         for content in forum_contents:
             item = content.item
             reply = f" / 回复数约 {item.reply_count}" if item.reply_count else ""
