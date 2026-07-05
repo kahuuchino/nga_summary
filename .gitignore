@@ -1,0 +1,29 @@
+# Private configuration and secrets
+config.toml
+config.local.toml
+*.local.toml
+.env
+.env.*
+!.env.example
+
+# Local cache, generated summaries, and runtime state
+.cache/
+summaries/
+data/
+logs/
+*.log
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp

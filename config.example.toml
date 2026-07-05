@@ -1,0 +1,44 @@
+# Copy this file to config.local.toml and fill in private values locally.
+# Do not commit config.local.toml.
+
+[nga]
+base_url = "https://bbs.nga.cn"
+
+# Paste the full Cookie header value from a logged-in browser session.
+# Example shape only:
+# cookie = "ngaPassportUid=...; ngaPassportCid=...; ..."
+cookie = ""
+
+# Target forum ids can be adjusted after confirming the exact NGA board ids.
+target_forums = [
+  { name = "网事杂谈", fid = "" },
+  { name = "手机 网页游戏综合讨论", fid = "" },
+]
+
+[llm]
+# Examples: openai, azure_openai, deepseek, siliconflow, openai_compatible
+provider = "openai_compatible"
+
+# For OpenAI-compatible APIs, set both base_url and model.
+base_url = ""
+api_key = ""
+model = ""
+
+# Generation defaults for daily forum summaries.
+temperature = 0.2
+max_tokens = 4000
+
+[crawler]
+request_timeout_seconds = 20
+request_interval_seconds = 2
+max_threads_per_forum = 50
+max_posts_per_thread = 80
+
+[summary]
+timezone = "Asia/Shanghai"
+daily_run_time = "09:00"
+output_dir = "summaries"
+
+[storage]
+# Local browsing/cache data can be kept here during development.
+cache_dir = ".cache/nga_summary"
