@@ -1,5 +1,7 @@
 # NGA Summary
 
+[本项目完全由vibe coding 生成]
+
 NGA Summary 用于定时浏览 NGA 指定板块，抓取热帖标题和高回复帖子内容，并通过 LLM 生成每日论坛热点与近期讨论动向的 Markdown 摘要。
 
 当前规划来自 [agent.md](agent.md)，目标板块包括：
@@ -20,6 +22,9 @@ cp config.example.toml config.local.toml
 然后编辑 `config.local.toml`：
 
 - `nga.cookie`：从已登录 NGA 的浏览器请求中复制完整 `Cookie` 请求头值。
+- `nga.cookie` 必须是合法 TOML 字符串。推荐写成单行：`cookie = "ngaPassportUid=...; ngaPassportCid=..."`
+- 如果 cookie 太长，也可以使用三引号多行字符串：`cookie = """..."""`。
+- `nga.headers`：抓取请求使用的额外 HTTP headers，默认包含 `Connection = "close"` 和 `User-Agent = "Nga_Official/80023"`。
 - `nga.target_forums`：填写或修正目标板块的 NGA `fid`。
 - `llm.provider`：填写使用的 LLM 服务类型。
 - `llm.base_url`：OpenAI 兼容接口地址。
@@ -27,8 +32,50 @@ cp config.example.toml config.local.toml
 - `llm.model`：用于总结的模型名。
 - `summary.daily_run_time`：每日自动总结时间。
 - `summary.output_dir`：Markdown 摘要输出目录。
+- `crawler.max_content_threads_per_forum`：每个板块抓取正文内容的热帖数量。
 
 不要提交 `config.local.toml`、`config.toml`、`.env` 或任何包含 cookie/API key 的文件。
+
+## 安装
+
+Python 版本建议使用 3.10 或更高。Python 3.10 需要安装 `tomli` 来读取 TOML 配置：
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+## 使用
+
+检查配置是否完整：
+
+```bash
+python3 -m nga_summary check-config
+```
+
+手动抓取并生成一次 LLM 摘要：
+
+```bash
+python3 -m nga_summary run
+```
+
+只抓取并输出原始 Markdown 摘要，不调用 LLM：
+
+```bash
+python3 -m nga_summary run --no-llm
+```
+
+每天按 `config.local.toml` 中的 `summary.daily_run_time` 自动运行：
+
+```bash
+python3 -m nga_summary schedule
+```
+
+可选参数：
+
+- `--config PATH`：指定配置文件路径。
+- `--pages-per-forum N`：每个目标板块扫描的页数，默认 `1`。
+
+生成的 Markdown 默认写入 `summaries/`，该目录不会进入版本控制。
 
 ## 预期工作流
 

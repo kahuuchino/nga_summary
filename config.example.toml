@@ -8,12 +8,16 @@ base_url = "https://bbs.nga.cn"
 # Example shape only:
 # cookie = "ngaPassportUid=...; ngaPassportCid=...; ..."
 cookie = ""
-
 # Target forum ids can be adjusted after confirming the exact NGA board ids.
 target_forums = [
   { name = "网事杂谈", fid = "" },
   { name = "手机 网页游戏综合讨论", fid = "" },
 ]
+
+[nga.headers]
+# Defaults are suitable for NGA app-style requests. Override only if needed.
+Connection = "close"
+User-Agent = "Nga_Official/80023"
 
 [llm]
 # Examples: openai, azure_openai, deepseek, siliconflow, openai_compatible
@@ -32,6 +36,7 @@ max_tokens = 4000
 request_timeout_seconds = 20
 request_interval_seconds = 2
 max_threads_per_forum = 50
+max_content_threads_per_forum = 10
 max_posts_per_thread = 80
 
 [summary]
